@@ -1,0 +1,122 @@
+<html ng-app="gsdbApp">
+<head>
+    <title>GSD KINGS</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/paper/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-awusxf8AUojygHf2+joICySzB780jVvQaVCAt1clU3QsyAitLGul28Qxb2r1e5g+" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css"/>
+</head>
+<body>
+<div class="container" ng-controller="listCtrl">
+    <div class="jumbotron">
+        <h1><b>
+        {% if page_key == "overtimes" %}GSD 야근왕
+        {% elif page_key == "comments" %}GSD 조언왕
+        {% else %}GSD KINGS
+        {% endif %}
+        </b></h1>
+        <p class="lead">
+        {% if page_key == "overtimes" %}<font color="red">전일 오후 6시부터 당일 오전 5시까지</font> <font color="#2828CD">SIGMA Confluence</font>의 마지막 편집 시간을 통해 야근 시간을 정합니다.
+        {% elif page_key == "comments" %}<font color="red">전일 오후 6시부터 당일 오전 5시까지</font> <font color="#2828CD">SIGMA Confluence</font>의 Comment 수를 통해 조언 수를 정합니다.
+        {% else %}쎄트렉아이 지상사업부문 멤버를 대상으로 야근왕, 조언왕 등을 선정하는 서비스입니다.
+        {% endif %}<br>초기 설정은 어제부터 오늘까지의 데이터입니다. <font color="green">검색 서비스를 통해 순위를 찾아보세요</font>
+        </p>
+        <a class="btn btn-lg btn-success" href="/" role="button">메인</a>
+        <a class="btn btn-lg btn-success" href="/overtimes" role="button">야근왕</a>
+        <a class="btn btn-lg btn-success" href="/comments" role="button">조언왕</a>
+    </div>
+    <input type="hidden" id="page_key" value={{page_key}}>
+    <div ng-controller="searchCtrl">
+        <div class="row">
+            <div class="col-md-2 col-md-offset-2"><strong>키워드 조회</strong>
+                <input type="text" class="form-control" ng-model="searchKeyword"/>
+            </div>
+            <div class="col-md-7 col-md-offset-1"><strong>날짜 조회</strong>
+                시작<input type="text" class="datePicker" ng-model="start" value="{{yesterday}}">
+                끝<input type="text" class="datePicker" ng-model="end" value="{{today}}">
+                <button class="btn btn-primary" ng-click="search(start, end)">조회</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4" ng-repeat="top in tops | orderBy:sortType:sortReverse | filter:searchKeyword">
+                <div class="thumbnail">
+                    <h4>{[{$index+1}]}위</h4>
+                    <img src="http://192.168.1.45/gsdimages/{[{top[0][0][4]}]}.png"/>
+                    <div class="caption">
+                        <b>소속</b> : <span ng-bind="top[0][0][2]"></span></a>&nbsp;&nbsp;
+                        <b>직급</b> : <span ng-bind="top[0][0][3]"></span></a>
+                        <h2 ng-bind="top[0][0][1]" style="text-align: center"></h2>
+                        {% if page_key == "overtimes" %}
+                        <p style="text-align: center">야근시간</p>
+                        {% else %}
+                        <p style="text-align: center">조언 수</p>
+                        {% endif %}
+                        <b><h2 ng-bind="top[1]" style="text-align: center"></h2></b>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th><a href="" ng-click="sortType = 'rank'; sortReverse = !sortReverse">순위
+                        <span ng-show="sortType == 'rank' && !sortReverse" class="glyphicon glyphicon-triangle-top"></span>
+                        <span ng-show="sortType == 'rank' && sortReverse" class="glyphicon glyphicon-triangle-bottom"></span>
+                    </a>
+                </th>
+                <th><a href="" ng-click="sortType = 'belong'; sortReverse = !sortReverse">소속
+                        <span ng-show="sortType == 'belong' && !sortReverse" class="glyphicon glyphicon-triangle-top"></span>
+                        <span ng-show="sortType == 'belong' && sortReverse" class="glyphicon glyphicon-triangle-bottom"></span>
+                    </a>
+                </th>
+                <th><a href="" ng-click="sortType = 'position'; sortReverse = !sortReverse">직급
+                        <span ng-show="sortType == 'position' && !sortReverse" class="glyphicon glyphicon-triangle-top"></span>
+                        <span ng-show="sortType == 'position' && sortReverse" class="glyphicon glyphicon-triangle-bottom"></span>
+                    </a>
+                </th>
+                <th><a href="" ng-click="sortType = 'name'; sortReverse = !sortReverse">이름
+                        <span ng-show="sortType == 'name' && !sortReverse" class="glyphicon glyphicon-triangle-top"></span>
+                        <span ng-show="sortType == 'name' && sortReverse" class="glyphicon glyphicon-triangle-bottom"></span>
+                     </a>
+                </th>
+                {% if page_key == "overtimes" %}
+                <th><a href="" ng-click="sortType = 'overtime'; sortReverse = !sortReverse">야근 시간
+                        <span ng-show="sortType == 'overtime' && !sortReverse" class="glyphicon glyphicon-triangle-top"></span>
+                        <span ng-show="sortType == 'overtime' && sortReverse" class="glyphicon glyphicon-triangle-bottom"></span>
+                    </a>
+                </th>
+                {% else %}
+                <th><a href="" ng-click="sortType = 'comment'; sortReverse = !sortReverse">조언 수
+                        <span ng-show="sortType == 'comment' && !sortReverse" class="glyphicon glyphicon-triangle-top"></span>
+                        <span ng-show="sortType == 'comment' && sortReverse" class="glyphicon glyphicon-triangle-bottom"></span>
+                    </a>
+                </th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody ng-repeat="user in users | orderBy:sortType:sortReverse | filter:searchKeyword">
+            <tr class="active">
+                <td ng-bind="$index + 4"></td>
+                <td ng-bind="user[0][0][2]"></td>
+                <td ng-bind="user[0][0][3]"></td>
+                <td ng-bind="user[0][0][1]"></td>
+                <td ng-bind="user[1]"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <footer class="footer">
+        <p>Copyleft <span class="copy-left">&copy;</span> 2016 by Satreci TKLEE, GSPARK, CHKIM, WOONGHU, WRHAN, SHLEE</p>
+    </footer>
+</div>
+</body>
+<script src="/js/gsdb.js"></script>
+</html>
